@@ -1,22 +1,23 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome, {{ user.username }}</title>
+    <title>Welcome</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
     <div class="container">
-        <h2>Welcome {{ user.username }}</h2>
-        <p>User ID: {{ user.id }}</p>
+        <h2>Welcome, {{ user.username }}</h2>
         <p>Email: {{ user.email }}</p>
         <p>Faculty: {{ profile.faculty }}</p>
+        <p>Department: {{ profile.department }}</p>
 
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            <div class="button-row">
+                <button type="submit" class="logout">Logout</button>
+            </div>
         </form>
     </div>
 </body>

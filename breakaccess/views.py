@@ -12,15 +12,16 @@ def register(request):
         password = request.POST['password']
         email = request.POST['email']
         faculty= request.POST['faculty']
+        department = request.POST['department']
         user = User.objects.create_user(username=username, password=password, email=email)
-        Profile.objects.create(user=user, faculty=faculty)
+        Profile.objects.create(user=user, faculty=faculty, department=departm)
         return redirect('login')
     return render(request, 'register.html')
 
 def login_view(request):  
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user:
             auth_login(request, user) 
