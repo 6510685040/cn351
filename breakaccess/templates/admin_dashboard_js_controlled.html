@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard (JS Controlled)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        p {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #e8f4f8; /* Light blue header */
+            color: #333;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9; /* Zebra striping */
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        button {
+            background-color: #e74c3c; /* Red for delete */
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #c0392b;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        a:hover {
+            background-color: #eaf6fa;
+        }
+        .logout-link {
+            display: block;
+            margin-top: 30px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .messages li {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .messages .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        .messages .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+        /* JS-controlled feature - initially visible, then JS hides it if not admin */
+        /* ไม่มี display: none; ที่นี่ เพื่อให้มันแสดงขึ้นมาถ้า JS ถูกปิด */
+        /* หรือคุณสามารถตั้งค่าเริ่มต้นเป็น block/table-cell เพื่อความชัดเจน */
+        .admin-feature {
+            /* display: table-cell; หรือ display: block; ตามประเภทองค์ประกอบ */
+            /* เราจะใช้ JS ในการซ่อนถ้าไม่เป็น admin */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome, {{ request.user.username }}!</p>
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <h2>All Users</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Is Staff</th>
+                    <th class="admin-feature">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.is_staff }}</td>
+                    <td class="admin-feature">
+                        <form action="{% url 'insecure_delete_user_js_controlled' u.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" onclick="return confirm('Are you sure you want to delete {{ u.username }}?');">Delete User</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{% url 'home' request.user.id %}"class = "logout-link">
+             Back to My Profile
+        </a>
+        <p class="logout-link"><a href="{% url 'logout' %}">Logout</a></p>
+    </div>
+
+    <script>
+        const isAdminString = "{{ is_admin_user|lower }}";
+        const isAdmin = (isAdminString === "true");
+
+        const adminFeatures = document.querySelectorAll('.admin-feature');
+
+        if (!isAdmin) {
+            adminFeatures.forEach(element => {
+                element.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
